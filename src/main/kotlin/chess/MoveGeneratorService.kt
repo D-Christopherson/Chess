@@ -498,6 +498,9 @@ class MoveGeneratorService {
         //    MinimaxService.isInCheckTime += System.currentTimeMillis() - start
         //    return false
         //}
+
+        // We're generating the sliding moves from the king's square and checking if any of the opponent's pieces are
+        // on that path.
         val allPieces = ownPieces or opponentPieces
         listOf(NORTH, EAST, SOUTH, WEST, NORTH_EAST, SOUTH_EAST, NORTH_WEST, SOUTH_WEST).forEach { direction ->
             val attacks: Pair<ULong, ULong>

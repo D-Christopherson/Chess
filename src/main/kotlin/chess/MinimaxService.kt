@@ -124,15 +124,8 @@ class MinimaxService(
                         this.bitBoardService.undoMove(board, undo)
                         return@forEach
                     }
-                    val repetitions = zobristHashesOfGame[board.getZobrastHash()]
-                    var newEntry = false
 
-                    if (repetitions != null) {
-                        zobristHashesOfGame[board.getZobrastHash()] = repetitions + 1
-                    } else {
-                        newEntry = true
-                        zobristHashesOfGame[board.getZobrastHash()] = 1
-                    }
+                    this.incrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
 
                     val result = this.minimax(
                         board,
@@ -145,11 +138,7 @@ class MinimaxService(
                         zobristHashesOfGame
                     )
 
-                    if (newEntry) {
-                        zobristHashesOfGame.remove(board.getZobrastHash())
-                    } else {
-                        zobristHashesOfGame[board.getZobrastHash()] = repetitions!!
-                    }
+                    this.decrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
 
                     this.bitBoardService.undoMove(board, undo)
                     if (result.second > value || bestMove == null) {
@@ -165,8 +154,10 @@ class MinimaxService(
             }
             if ((entry == null || entry.depth <= depth) && bestMove != null) {
                 transpositionTable[(board.getZobrastHash() and zobristTableSize.toULong()).toInt()] =
-                    TranspositionEntry(board.getZobrastHash(), value, depth, false, value > beta, bestMove)
+                    TranspositionEntry(board.getZobrastHash(), value, depth, false, value > beta, bestMove!!)
             }
+
+            // No moves but not in check is stalemate
             board.updateSideToPlay(!board.sideToPlay)
             if (bestMove == null && !this.bitBoardService.isInCheck(board)) {
                 board.updateSideToPlay(!board.sideToPlay)
@@ -187,14 +178,7 @@ class MinimaxService(
                         return@forEach
                     }
 
-                    val repetitions = zobristHashesOfGame[board.getZobrastHash()]
-                    var newEntry = false
-                    if (repetitions != null) {
-                        zobristHashesOfGame[board.getZobrastHash()] = repetitions + 1
-                    } else {
-                        newEntry = true
-                        zobristHashesOfGame[board.getZobrastHash()] = 1
-                    }
+                    this.incrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
 
                     val result = this.minimax(
                         board,
@@ -207,11 +191,7 @@ class MinimaxService(
                         zobristHashesOfGame
                     )
 
-                    if (newEntry) {
-                        zobristHashesOfGame.remove(board.getZobrastHash())
-                    } else {
-                        zobristHashesOfGame[board.getZobrastHash()] = repetitions!!
-                    }
+                    this.decrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
 
                     this.bitBoardService.undoMove(board, undo)
                     if (result.second < value || bestMove == null) {
@@ -227,8 +207,10 @@ class MinimaxService(
             }
             if ((entry == null || entry.depth <= depth) && bestMove != null) {
                 transpositionTable[(board.getZobrastHash() and zobristTableSize.toULong()).toInt()] =
-                    TranspositionEntry(board.getZobrastHash(), value, depth, value < alpha, false, bestMove)
+                    TranspositionEntry(board.getZobrastHash(), value, depth, value < alpha, false, bestMove!!)
             }
+
+            // No moves but not in check is stalemate
             board.updateSideToPlay(!board.sideToPlay)
             if (bestMove == null && !this.bitBoardService.isInCheck(board)) {
                 board.updateSideToPlay(!board.sideToPlay)
@@ -236,6 +218,22 @@ class MinimaxService(
             }
             board.updateSideToPlay(!board.sideToPlay)
             return Pair(bestMove, value)
+        }
+    }
+
+    private fun incrementRepetitionCount(hash: ULong, repetitions: MutableMap<ULong, Int>) {
+        val entry = repetitions[hash]
+        repetitions[hash] = if (entry != null) entry + 1 else 1
+    }
+
+    private fun decrementRepetitionCount(hash: ULong, repetitions: MutableMap<ULong, Int>) {
+        val entry = repetitions[hash]
+        if (entry == 1) {
+            repetitions.remove(hash)
+        } else {
+            if (entry != null) {
+                repetitions[hash] = entry - 1
+            }
         }
     }
 }
@@ -246,5 +244,5 @@ data class TranspositionEntry(
     val depth: Int,
     val alphaCutoff: Boolean,
     val betaCutoff: Boolean,
-    val bestMove: Move?
+    val bestMove: Move
 )
