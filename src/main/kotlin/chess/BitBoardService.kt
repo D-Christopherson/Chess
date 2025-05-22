@@ -19,8 +19,9 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
 
     fun generateMoves(board: BoardState, killerMoves: Array<Move?>, depth: Int, transpositionTable: Array<TranspositionEntry?>): List<Move> {
         val start = System.currentTimeMillis()
-        val captures = ArrayList<Move>()
-        val nonCaptures = ArrayList<Move>()
+        val captures = ArrayList<Move>(100)
+        val nonCaptures = ArrayList<Move>(100)
+        val result = ArrayList<Move>(100)
         val killerMove = killerMoves[depth]
 
         val pawnMoves = this.moveService.generatePawnMoves(board)
@@ -47,28 +48,24 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
         captures.addAll(kingMoves.captures)
         nonCaptures.addAll(kingMoves.other)
 
-        if (captures.remove(killerMove)) {
-            captures.addFirst(killerMove!!)
-        }
-        if (nonCaptures.remove(killerMove)) {
-            captures.addFirst(killerMove!!)
-        }
-
         val transpositionEntry = transpositionTable[(board.getZobrastHash() and MinimaxService.zobristTableSize.toULong()).toInt()]
         if (transpositionEntry != null && transpositionEntry.zobristHash == board.zobristHash) {
-            if (captures.remove(transpositionEntry.bestMove)) {
-                MinimaxService.transpositionBestMoves++
-                captures.addFirst(transpositionEntry.bestMove!!)
-            }
-            if (nonCaptures.remove(transpositionEntry.bestMove)) {
-                MinimaxService.transpositionBestMoves++
-                captures.addFirst(transpositionEntry.bestMove!!)
-            }
+            MinimaxService.transpositionBestMoves++
+            result.add(transpositionEntry.bestMove)
         }
+
+        if (captures.remove(killerMove)) {
+            result.add(killerMove!!)
+        }
+        if (nonCaptures.remove(killerMove)) {
+            result.add(killerMove!!)
+        }
+
         // Sort captures first since they're more promising for alpha beta pruning
-        captures.addAll(nonCaptures)
+        result.addAll(captures)
+        result.addAll(nonCaptures)
         MinimaxService.moveGenerationTime += System.currentTimeMillis() - start
-        return captures
+        return result
     }
 
     /**
