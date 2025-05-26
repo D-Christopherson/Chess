@@ -50,6 +50,8 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
 
         val transpositionEntry = transpositionTable[(board.getZobrastHash() and MinimaxService.zobristTableSize.toULong()).toInt()]
         if (transpositionEntry != null && transpositionEntry.zobristHash == board.zobristHash) {
+            captures.remove(transpositionEntry.bestMove)
+            nonCaptures.remove(transpositionEntry.bestMove)
             MinimaxService.transpositionBestMoves++
             result.add(transpositionEntry.bestMove)
         }

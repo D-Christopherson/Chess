@@ -41,6 +41,7 @@ class MoveGeneratorService {
         const val SOUTH_WEST = 5
         const val WEST = 6
         const val NORTH_WEST = 7
+        val allDirections = listOf(NORTH, EAST, SOUTH, WEST, NORTH_EAST, SOUTH_EAST, NORTH_WEST, SOUTH_WEST)
 
         // Testing if the king is in check for real (there are no blockers for a sliding piece) is slow. This list of
         // moves gives us a weaker "is in check" test where we can quickly say that it's impossible for any of the
@@ -494,15 +495,15 @@ class MoveGeneratorService {
         }
 
 //        // Short circuit if the opponent has no pieces even pointed at the king. So far this seems to make no improvement
-        //if (superPieceMoves[kingSquare] and opponentPieces == 0UL) {
-        //    MinimaxService.isInCheckTime += System.currentTimeMillis() - start
-        //    return false
-        //}
+        if (superPieceMoves[kingSquare] and opponentPieces == 0UL) {
+            MinimaxService.isInCheckTime += System.currentTimeMillis() - start
+            return false
+        }
 
         // We're generating the sliding moves from the king's square and checking if any of the opponent's pieces are
         // on that path.
         val allPieces = ownPieces or opponentPieces
-        listOf(NORTH, EAST, SOUTH, WEST, NORTH_EAST, SOUTH_EAST, NORTH_WEST, SOUTH_WEST).forEach { direction ->
+        allDirections.forEach { direction ->
             val attacks: Pair<ULong, ULong>
             when (direction) {
                 NORTH, NORTH_EAST, NORTH_WEST, WEST -> {

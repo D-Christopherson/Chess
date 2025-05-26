@@ -94,7 +94,7 @@ class MinimaxService(
         zobristHashesOfGame: MutableMap<ULong, Int>
     ): Pair<Move?, Int> {
         val threeFoldCount = zobristHashesOfGame[board.getZobrastHash()]
-        if (threeFoldCount != null && threeFoldCount >= 2) {
+        if (threeFoldCount != null && threeFoldCount >= 3) {
             return Pair(null, 0)
         }
 
@@ -146,7 +146,7 @@ class MinimaxService(
                         bestMove = move
                     }
                     newAlpha = max(newAlpha, value)
-                    if (value > beta) {
+                    if (value >= beta) {
                         killerMoves[depth] = move
                         return@search
                     }
@@ -199,7 +199,7 @@ class MinimaxService(
                         bestMove = move
                     }
                     newBeta = min(newBeta, value)
-                    if (value < alpha) {
+                    if (value <= alpha) {
                         killerMoves[depth] = move
                         return@search
                     }
