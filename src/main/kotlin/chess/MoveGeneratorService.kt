@@ -410,6 +410,9 @@ class MoveGeneratorService {
                             this.addPromotionMove(index, pawn, attackLeft, captures)
                         }
                     }
+                    if (attackLeft and board.enPassant != 0UL) {
+                        captures.add(Move('p', index, pawn, attackLeft, enPassantCapture = true))
+                    }
                 }
                 if (pawn and H_FILE == 0UL) {
                     val attackRight = pawn shl 7
@@ -419,6 +422,9 @@ class MoveGeneratorService {
                         } else {
                             this.addPromotionMove(index, pawn, attackRight, captures)
                         }
+                    }
+                    if (attackRight and board.enPassant != 0UL) {
+                        captures.add(Move('p', index, pawn, attackRight, enPassantCapture = true))
                     }
                 }
             } else {
@@ -446,6 +452,9 @@ class MoveGeneratorService {
                             this.addPromotionMove(index, pawn, attackRight, captures)
                         }
                     }
+                    if (attackRight and board.enPassant != 0UL) {
+                        captures.add(Move('p', index, pawn, attackRight, enPassantCapture = true))
+                    }
                 }
                 if (pawn and A_FILE == 0UL) {
                     val attackLeft = pawn shr 7
@@ -455,6 +464,9 @@ class MoveGeneratorService {
                         } else {
                             this.addPromotionMove(index, pawn, attackLeft, captures)
                         }
+                    }
+                    if (attackLeft and board.enPassant != 0UL) {
+                        captures.add(Move('p', index, pawn, attackLeft, enPassantCapture = true))
                     }
                 }
             }

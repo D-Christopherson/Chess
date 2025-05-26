@@ -28,6 +28,10 @@ class FenParsingService {
         board.castling[1][0] = castling.contains('k')
         board.castling[1][1] = castling.contains('q')
 
+        if (segments[3] != "-") {
+            board.enPassant = squareToULong(segments[3])
+        }
+
         return board
     }
 
@@ -83,6 +87,25 @@ class FenParsingService {
         if (piece.isLowerCase()) return 1
         return 0
     }
-}
+    private fun squareToULong(square: String): ULong {
+        val file = when (square[0]) {
+            'a' -> 1
+            'b' -> 2
+            'c' -> 3
+            'd' -> 4
+            'e' -> 5
+            'f' -> 6
+            'g' -> 7
+            'h' -> 8
+            else -> throw InvalidMoveException("Unexpected square for move=${square[0]}")
+        }
+        val rank = square[1].code
 
+        var result = 1UL
+        result = result shl (8 - file)
+        result = result shl (8 * (rank - 1))
+        return result
+    }
+}
+class InvalidMoveException(message: String) : RuntimeException(message)
 class InvalidFenException(message: String) : RuntimeException(message)

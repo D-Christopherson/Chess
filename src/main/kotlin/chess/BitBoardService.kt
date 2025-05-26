@@ -1,5 +1,7 @@
 package chess
 
+import chess.MoveGeneratorService.Companion.RANK_3
+import chess.MoveGeneratorService.Companion.RANK_6
 import org.springframework.stereotype.Service
 
 @ExperimentalUnsignedTypes
@@ -17,7 +19,12 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
         return result
     }
 
-    fun generateMoves(board: BoardState, killerMoves: Array<Move?>, depth: Int, transpositionTable: Array<TranspositionEntry?>): List<Move> {
+    fun generateMoves(
+        board: BoardState,
+        killerMoves: Array<Move?>,
+        depth: Int,
+        transpositionTable: Array<TranspositionEntry?>
+    ): List<Move> {
         val start = System.currentTimeMillis()
         val captures = ArrayList<Move>(100)
         val nonCaptures = ArrayList<Move>(100)
@@ -48,7 +55,8 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
         captures.addAll(kingMoves.captures)
         nonCaptures.addAll(kingMoves.other)
 
-        val transpositionEntry = transpositionTable[(board.getZobrastHash() and MinimaxService.zobristTableSize.toULong()).toInt()]
+        val transpositionEntry =
+            transpositionTable[(board.getZobrastHash() and MinimaxService.zobristTableSize.toULong()).toInt()]
         if (transpositionEntry != null && transpositionEntry.zobristHash == board.zobristHash) {
             captures.remove(transpositionEntry.bestMove)
             nonCaptures.remove(transpositionEntry.bestMove)
@@ -105,8 +113,13 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
             board.fiftyMoveRuleCounter++
         }
         if (move.enPassantCapture) {
-            board.updatePieces(move.piece, opponentIndex, board.enPassant)
-            piecesToUndo.add(UndoPiece(move.piece, opponentIndex, board.enPassant))
+            if (board.enPassant and RANK_3 != 0UL) {
+                board.updatePieces(move.piece, opponentIndex, board.enPassant shl 8)
+                piecesToUndo.add(UndoPiece(move.piece, opponentIndex, board.enPassant shl 8))
+            } else if (board.enPassant and RANK_6 != 0UL) {
+                board.updatePieces(move.piece, opponentIndex, board.enPassant shr 8)
+                piecesToUndo.add(UndoPiece(move.piece, opponentIndex, board.enPassant shr 8))
+            }
         }
 
         board.updatePieces(move.piece, index, move.sourceSquare)
@@ -277,26 +290,4 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
                 board.queens[0] or board.queens[1] or
                 board.king[0] or board.king[1]
     }
-
-    private fun squareToULong(square: String): ULong {
-        val file = when (square[0]) {
-            'a' -> 1
-            'b' -> 2
-            'c' -> 3
-            'd' -> 4
-            'e' -> 5
-            'f' -> 6
-            'g' -> 7
-            'h' -> 8
-            else -> throw InvalidMoveException("Unexpected square for move=${square[0]}")
-        }
-        val rank = square[1].code
-
-        var result = 1UL
-        result = result shl (8 - file)
-        result = result shl (8 * (rank - 1))
-        return result
-    }
 }
-
-class InvalidMoveException(message: String) : RuntimeException(message)
