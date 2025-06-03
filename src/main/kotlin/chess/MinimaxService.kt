@@ -154,7 +154,7 @@ class MinimaxService(
             }
             if ((entry == null || entry.depth <= depth) && bestMove != null) {
                 transpositionTable[(board.getZobrastHash() and zobristTableSize.toULong()).toInt()] =
-                    TranspositionEntry(board.getZobrastHash(), value, depth, false, value > beta, bestMove!!)
+                    TranspositionEntry(board.getZobrastHash(), value, depth, false, value >= beta, bestMove)
             }
 
             // No moves but not in check is stalemate
@@ -207,7 +207,7 @@ class MinimaxService(
             }
             if ((entry == null || entry.depth <= depth) && bestMove != null) {
                 transpositionTable[(board.getZobrastHash() and zobristTableSize.toULong()).toInt()] =
-                    TranspositionEntry(board.getZobrastHash(), value, depth, value < alpha, false, bestMove!!)
+                    TranspositionEntry(board.getZobrastHash(), value, depth, value <= alpha, false, bestMove)
             }
 
             // No moves but not in check is stalemate
