@@ -322,29 +322,11 @@ class MoveGeneratorService {
                 }
                 if (pawn and A_FILE == 0UL) {
                     val attackLeft = pawn shl 9
-                    if (attackLeft and opponentPieces != 0UL) {
-                        if (attackLeft and RANK_8 == 0UL) {
-                            captures.add(Move('p', index, pawn, attackLeft))
-                        } else {
-                            this.addPromotionMove(index, pawn, attackLeft, captures)
-                        }
-                    }
-                    if (attackLeft and board.enPassant != 0UL) {
-                        captures.add(Move('p', index, pawn, attackLeft, enPassantCapture = true))
-                    }
+                    this.addPawnCaptures(board, attackLeft, pawn, opponentPieces,RANK_8, captures, index)
                 }
                 if (pawn and H_FILE == 0UL) {
                     val attackRight = pawn shl 7
-                    if (attackRight and opponentPieces != 0UL) {
-                        if (attackRight and RANK_8 == 0UL) {
-                            captures.add(Move('p', index, pawn, attackRight))
-                        } else {
-                            this.addPromotionMove(index, pawn, attackRight, captures)
-                        }
-                    }
-                    if (attackRight and board.enPassant != 0UL) {
-                        captures.add(Move('p', index, pawn, attackRight, enPassantCapture = true))
-                    }
+                    this.addPawnCaptures(board, attackRight, pawn, opponentPieces,RANK_8, captures, index)
                 }
             } else {
                 val move = pawn shr 8
@@ -364,34 +346,37 @@ class MoveGeneratorService {
                 }
                 if (pawn and H_FILE == 0UL) {
                     val attackRight = pawn shr 9
-                    if (attackRight and opponentPieces != 0UL) {
-                        if (attackRight and RANK_1 == 0UL) {
-                            captures.add(Move('p', index, pawn, attackRight))
-                        } else {
-                            this.addPromotionMove(index, pawn, attackRight, captures)
-                        }
-                    }
-                    if (attackRight and board.enPassant != 0UL) {
-                        captures.add(Move('p', index, pawn, attackRight, enPassantCapture = true))
-                    }
+                    this.addPawnCaptures(board, attackRight, pawn, opponentPieces,RANK_1, captures, index)
                 }
                 if (pawn and A_FILE == 0UL) {
                     val attackLeft = pawn shr 7
-                    if (attackLeft and opponentPieces != 0UL) {
-                        if (attackLeft and RANK_1 == 0UL) {
-                            captures.add(Move('p', index, pawn, attackLeft))
-                        } else {
-                            this.addPromotionMove(index, pawn, attackLeft, captures)
-                        }
-                    }
-                    if (attackLeft and board.enPassant != 0UL) {
-                        captures.add(Move('p', index, pawn, attackLeft, enPassantCapture = true))
-                    }
+                    this.addPawnCaptures(board, attackLeft, pawn, opponentPieces,RANK_1, captures, index)
                 }
             }
         }
 
         return GeneratedMoves(captures, other)
+    }
+
+    private fun addPawnCaptures(
+        board: BoardState,
+        attackedSquare: ULong,
+        pawn: ULong,
+        opponentPieces: ULong,
+        promotionRank: ULong,
+        captures: MutableSet<Move>,
+        index: Int
+    ) {
+        if (attackedSquare and opponentPieces != 0UL) {
+            if (attackedSquare and promotionRank == 0UL) {
+                captures.add(Move('p', index, pawn, attackedSquare))
+            } else {
+                this.addPromotionMove(index, pawn, attackedSquare, captures)
+            }
+        }
+        if (attackedSquare and board.enPassant != 0UL) {
+            captures.add(Move('p', index, pawn, attackedSquare, enPassantCapture = true))
+        }
     }
 
     // Given the state of the board, test if the king is in check. I chose to break this out from the move generation
