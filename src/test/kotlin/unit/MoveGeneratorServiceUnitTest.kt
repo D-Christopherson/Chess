@@ -339,6 +339,94 @@ class MoveGeneratorServiceUnitTest {
     }
 
     @Test
+    fun `generatePawnMoves -- white pawn on seventh rank -- can promote`() {
+        val board = BoardState()
+        board.pawns[0] = 0b00000000_00100000_00000000_00000000_00000000_00000000_00000000_00000000UL
+        board.rooks[1] = 0b01010000_00000000_00000000_00000000_00000000_00000000_00000000_00000000UL
+        val subject = MoveGeneratorService()
+
+        val result = subject.generatePawnMoves(board)
+
+        assertThat(result.captures.size).isEqualTo(8)
+        assertThat(result.captures).flatExtracting({it.targetSquare}).containsOnly(
+            0b00010000_00000000_00000000_00000000_00000000_00000000_00000000_00000000UL,
+            0b01000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000UL,
+        )
+        assertThat(result.captures).flatExtracting({it.promotionPiece}).containsOnly(
+            'q', 'r', 'n', 'b'
+        )
+
+        assertThat(result.other.size).isEqualTo(4)
+        assertThat(result.other).flatExtracting({it.targetSquare}).containsOnly(
+            0b00100000_00000000_00000000_00000000_00000000_00000000_00000000_00000000UL,
+        )
+        assertThat(result.other).flatExtracting({it.promotionPiece}).containsOnly(
+            'q', 'r', 'n', 'b'
+        )
+    }
+
+    @Test
+    fun `generatePawnMoves -- black pawn on seventh rank -- can promote`() {
+        val board = BoardState()
+        board.sideToPlay = false
+        board.pawns[1] = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000100_00000000UL
+        board.rooks[0] = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001010UL
+        val subject = MoveGeneratorService()
+
+        val result = subject.generatePawnMoves(board)
+
+        assertThat(result.captures.size).isEqualTo(8)
+        assertThat(result.captures).flatExtracting({it.targetSquare}).containsOnly(
+            0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00001000UL,
+            0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000010UL,
+        )
+        assertThat(result.captures).flatExtracting({it.promotionPiece}).containsOnly(
+            'q', 'r', 'n', 'b'
+        )
+
+        assertThat(result.other.size).isEqualTo(4)
+        assertThat(result.other).flatExtracting({it.targetSquare}).containsOnly(
+            0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000100UL,
+        )
+        assertThat(result.other).flatExtracting({it.promotionPiece}).containsOnly(
+            'q', 'r', 'n', 'b'
+        )
+    }
+
+    @Test
+    fun `generatePawnMoves -- white pawn can en passant -- can capture`() {
+        val board = BoardState()
+        board.enPassant = 0b00000000_00000000_10000000_00000000_00000000_00000000_00000000_00000000UL
+        board.pawns[0] = 0b00000000_00000000_00000000_01000000_00000000_00000000_00000000_00000000UL
+        board.pawns[1] = 0b00000000_00000000_00000000_10000000_00000000_00000000_00000000_00000000UL
+        val subject = MoveGeneratorService()
+
+        val result = subject.generatePawnMoves(board)
+
+        assertThat(result.captures.size).isEqualTo(1)
+        assertThat(result.captures).flatExtracting({it.targetSquare}).contains(
+            0b00000000_00000000_10000000_00000000_00000000_00000000_00000000_00000000UL,
+        )
+    }
+
+    @Test
+    fun `generatePawnMoves -- black pawn can en passant -- can capture`() {
+        val board = BoardState()
+        board.sideToPlay = false
+        board.enPassant = 0b00000000_00000000_00000000_00000000_00000000_00000001_00000000_00000000UL
+        board.pawns[0] = 0b00000000_00000000_00000000_00000000_00000001_00000000_00000000_00000000UL
+        board.pawns[1] = 0b00000000_00000000_00000000_00000000_00000010_00000000_00000000_00000000UL
+        val subject = MoveGeneratorService()
+
+        val result = subject.generatePawnMoves(board)
+
+        assertThat(result.captures.size).isEqualTo(1)
+        assertThat(result.captures).flatExtracting({it.targetSquare}).contains(
+            0b00000000_00000000_00000000_00000000_00000000_00000001_00000000_00000000UL,
+        )
+    }
+
+    @Test
     fun `testIfInCheck -- pawn attacking black king -- returns true`() {
         val board = BoardState()
         board.sideToPlay = false
