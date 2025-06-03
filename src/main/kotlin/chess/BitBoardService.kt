@@ -210,16 +210,16 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
         val grid = Array(8) { Array(8) { '-' } }
         val whiteKing = board.king[0]
         val blackKing = board.king[1]
-        val whiteQueens = this.splitPieces(board.queens[0])
-        val blackQueens = this.splitPieces(board.queens[1])
-        val whiteRooks = this.splitPieces(board.rooks[0])
-        val blackRooks = this.splitPieces(board.rooks[1])
-        val whiteBishops = this.splitPieces(board.bishops[0])
-        val blackBishops = this.splitPieces(board.bishops[1])
-        val whiteKnights = this.splitPieces(board.knights[0])
-        val blackKnights = this.splitPieces(board.knights[1])
-        val whitePawns = this.splitPieces(board.pawns[0])
-        val blackPawns = this.splitPieces(board.pawns[1])
+        val whiteQueens = this.moveService.splitPieces(board.queens[0])
+        val blackQueens = this.moveService.splitPieces(board.queens[1])
+        val whiteRooks = this.moveService.splitPieces(board.rooks[0])
+        val blackRooks = this.moveService.splitPieces(board.rooks[1])
+        val whiteBishops = this.moveService.splitPieces(board.bishops[0])
+        val blackBishops = this.moveService.splitPieces(board.bishops[1])
+        val whiteKnights = this.moveService.splitPieces(board.knights[0])
+        val blackKnights = this.moveService.splitPieces(board.knights[1])
+        val whitePawns = this.moveService.splitPieces(board.pawns[0])
+        val blackPawns = this.moveService.splitPieces(board.pawns[1])
 
         grid[whiteKing.countTrailingZeroBits() / 8][whiteKing.countTrailingZeroBits() % 8] = 'K'
         grid[blackKing.countTrailingZeroBits() / 8][blackKing.countTrailingZeroBits() % 8] = 'k'
@@ -259,18 +259,6 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
             }
             println()
         }
-    }
-
-    private fun splitPieces(pieces: ULong): List<ULong> {
-        val splitPieces = ArrayList<ULong>()
-        var remainingPieces = pieces
-        while (remainingPieces != 0UL) {
-            val newPieceSquare = remainingPieces.countTrailingZeroBits()
-            val newPiece = 1UL shl newPieceSquare
-            splitPieces.add(newPiece)
-            remainingPieces = remainingPieces xor newPiece
-        }
-        return splitPieces
     }
 
     private fun getPiecesForColor(board: BoardState, color: Int): ULong {

@@ -208,13 +208,13 @@ class MoveGeneratorService {
             }
             superPieceMoves.add(
                 slidingMoves[NORTH][i] or
-                        slidingMoves[EAST][i+1] or
-                        slidingMoves[SOUTH][i+1] or
+                        slidingMoves[EAST][i + 1] or
+                        slidingMoves[SOUTH][i + 1] or
                         slidingMoves[WEST][i] or
                         slidingMoves[NORTH_EAST][i] or
                         slidingMoves[NORTH_WEST][i] or
-                        slidingMoves[SOUTH_EAST][i+1] or
-                        slidingMoves[SOUTH_WEST][i+1] or
+                        slidingMoves[SOUTH_EAST][i + 1] or
+                        slidingMoves[SOUTH_WEST][i + 1] or
                         joinedKnightMoves
             )
 
@@ -243,65 +243,21 @@ class MoveGeneratorService {
     }
 
     fun generateQueenMoves(board: BoardState): GeneratedMoves {
-        val captures = HashSet<Move>()
-        val other = HashSet<Move>()
-        val index = this.sideToPlayToIndex(board.sideToPlay)
-        val opponentPieces = this.getPiecesForColor(board, 1 - index)
-        val ownPieces = this.getPiecesForColor(board, index)
-        val allPieces = opponentPieces or ownPieces
-        var queens = board.queens[index]
-        val splitQueens = ArrayList<ULong>()
-        while (queens != 0UL) {
-            val trailingZeroes = queens.countTrailingZeroBits()
-            val queen = 1UL shl trailingZeroes
-            splitQueens.add(queen)
-            queens = queens xor queen
-        }
-        splitQueens.forEach { queen ->
-            this.generateSlidingMoves(
-                queen,
-                allPieces,
-                opponentPieces,
-                listOf(NORTH, EAST, WEST, SOUTH, NORTH_EAST, SOUTH_EAST, NORTH_WEST, SOUTH_WEST),
-                index,
-                'q',
-                captures,
-                other
-            )
-        }
-
-        return GeneratedMoves(captures, other)
+        return this.generateSlidingMoves(
+            board,
+            board.queens,
+            'q',
+            listOf(NORTH, EAST, WEST, SOUTH, NORTH_EAST, SOUTH_EAST, NORTH_WEST, SOUTH_WEST)
+        )
     }
 
     fun generateRookMoves(board: BoardState): GeneratedMoves {
-        val captures = HashSet<Move>()
-        val other = HashSet<Move>()
-        val index = this.sideToPlayToIndex(board.sideToPlay)
-        val opponentPieces = this.getPiecesForColor(board, 1 - index)
-        val ownPieces = this.getPiecesForColor(board, index)
-        val allPieces = opponentPieces or ownPieces
-        var rooks = board.rooks[index]
-        val splitRooks = ArrayList<ULong>()
-        while (rooks != 0UL) {
-            val trailingZeroes = rooks.countTrailingZeroBits()
-            val rook = 1UL shl trailingZeroes
-            splitRooks.add(rook)
-            rooks = rooks xor rook
-        }
-        splitRooks.forEach { rook ->
-            this.generateSlidingMoves(
-                rook,
-                allPieces,
-                opponentPieces,
-                listOf(NORTH, SOUTH, EAST, WEST),
-                index,
-                'r',
-                captures,
-                other
-            )
-        }
-
-        return GeneratedMoves(captures, other)
+        return this.generateSlidingMoves(
+            board,
+            board.rooks,
+            'r',
+            listOf(NORTH, SOUTH, EAST, WEST)
+        )
     }
 
     fun generateKnightMoves(board: BoardState): GeneratedMoves {
@@ -310,14 +266,7 @@ class MoveGeneratorService {
         val index = this.sideToPlayToIndex(board.sideToPlay)
         val opponentPieces = this.getPiecesForColor(board, 1 - index)
         val ownPieces = this.getPiecesForColor(board, index)
-        var knights = board.knights[index]
-        val splitKnights = ArrayList<ULong>()
-        while (knights != 0UL) {
-            val trailingZeroes = knights.countTrailingZeroBits()
-            val knight = 1UL shl trailingZeroes
-            splitKnights.add(knight)
-            knights = knights xor knight
-        }
+        val splitKnights = this.splitPieces(board.knights[index])
 
         splitKnights.forEach { knight ->
             val moves = knightMoves[knight.countTrailingZeroBits()]
@@ -336,52 +285,22 @@ class MoveGeneratorService {
     }
 
     fun generateBishopMoves(board: BoardState): GeneratedMoves {
-        val captures = HashSet<Move>()
-        val other = HashSet<Move>()
-        val index = this.sideToPlayToIndex(board.sideToPlay)
-        val opponentPieces = this.getPiecesForColor(board, 1 - index)
-        val ownPieces = this.getPiecesForColor(board, index)
-        val allPieces = opponentPieces or ownPieces
-        var bishops = board.bishops[index]
-        val splitBishops = ArrayList<ULong>()
-        while (bishops != 0UL) {
-            val trailingZeroes = bishops.countTrailingZeroBits()
-            val bishop = 1UL shl trailingZeroes
-            splitBishops.add(bishop)
-            bishops = bishops xor bishop
-        }
-        splitBishops.forEach { bishop ->
-            this.generateSlidingMoves(
-                bishop,
-                allPieces,
-                opponentPieces,
-                listOf(NORTH_EAST, SOUTH_EAST, NORTH_WEST, SOUTH_WEST),
-                index,
-                'b',
-                captures,
-                other
-            )
-        }
-
-        return GeneratedMoves(captures, other)
+        return this.generateSlidingMoves(
+            board,
+            board.bishops,
+            'b',
+            listOf(NORTH_EAST, SOUTH_EAST, NORTH_WEST, SOUTH_WEST)
+        )
     }
 
     fun generatePawnMoves(board: BoardState): GeneratedMoves {
         val captures = HashSet<Move>()
         val other = HashSet<Move>()
         val index = this.sideToPlayToIndex(board.sideToPlay)
-        // TODO add en-passant captures
         val opponentPieces = this.getPiecesForColor(board, 1 - index)
         val ownPieces = this.getPiecesForColor(board, index)
         val allPieces = opponentPieces or ownPieces
-        var pawns = board.pawns[index]
-        val splitPawns = ArrayList<ULong>()
-        while (pawns != 0UL) {
-            val trailingZeroes = pawns.countTrailingZeroBits()
-            val bishop = 1UL shl trailingZeroes
-            splitPawns.add(bishop)
-            pawns = pawns xor bishop
-        }
+        val splitPawns = this.splitPieces(board.pawns[index])
 
         splitPawns.forEach { pawn ->
             if (board.sideToPlay) {
@@ -459,7 +378,7 @@ class MoveGeneratorService {
                 if (pawn and A_FILE == 0UL) {
                     val attackLeft = pawn shr 7
                     if (attackLeft and opponentPieces != 0UL) {
-                        if (attackLeft and RANK_1== 0UL) {
+                        if (attackLeft and RANK_1 == 0UL) {
                             captures.add(Move('p', index, pawn, attackLeft))
                         } else {
                             this.addPromotionMove(index, pawn, attackLeft, captures)
@@ -506,7 +425,7 @@ class MoveGeneratorService {
             }
         }
 
-//        // Short circuit if the opponent has no pieces even pointed at the king. So far this seems to make no improvement
+        // Short circuit if the opponent has no pieces even pointed at the king. So far this seems to make no improvement
         if (superPieceMoves[kingSquare] and opponentPieces == 0UL) {
             MinimaxService.isInCheckTime += System.currentTimeMillis() - start
             return false
@@ -538,13 +457,14 @@ class MoveGeneratorService {
 
                 else -> throw RuntimeException("Unexpected direction")
             }
-            when(direction) {
+            when (direction) {
                 NORTH, SOUTH, EAST, WEST -> {
                     if (attacks.second and (opponentQueens or opponentRooks) != 0UL) {
                         MinimaxService.isInCheckTime += System.currentTimeMillis() - start
                         return true
                     }
                 }
+
                 else -> {
                     if (attacks.second and (opponentQueens or opponentBishops) != 0UL) {
                         MinimaxService.isInCheckTime += System.currentTimeMillis() - start
@@ -578,6 +498,21 @@ class MoveGeneratorService {
         return false
     }
 
+    /**
+     * Breaks up a ULong like 0b00000011 into [0b00000010, 0b00000001]
+     */
+    fun splitPieces(pieces: ULong): List<ULong> {
+        val splitPieces = ArrayList<ULong>()
+        var remainingPieces = pieces
+        while (remainingPieces != 0UL) {
+            val trailingZeroes = remainingPieces.countTrailingZeroBits()
+            val piece = 1UL shl trailingZeroes
+            splitPieces.add(piece)
+            remainingPieces = remainingPieces xor piece
+        }
+        return splitPieces
+    }
+
     private fun sideToPlayToIndex(sideToPlay: Boolean): Int {
         return if (sideToPlay) 0 else 1
     }
@@ -597,41 +532,53 @@ class MoveGeneratorService {
     }
 
     private fun generateSlidingMoves(
-        piece: ULong, allPieces: ULong, opponentPieces: ULong, directions: List<Int>, index: Int, pieceType: Char,
-        captures: MutableSet<Move>, other: MutableSet<Move>
-    ) {
-        directions.forEach { direction ->
-            val attacks: Pair<ULong, ULong>
-            when (direction) {
-                NORTH, NORTH_EAST, NORTH_WEST, WEST ->
-                    attacks = this.getPositiveSlidingAttacks(
-                        allPieces,
-                        opponentPieces,
-                        direction,
-                        piece.countTrailingZeroBits()
-                    )
+        board: BoardState,
+        pieceList: ULongArray,
+        pieceType: Char,
+        directions: List<Int>
+    ): GeneratedMoves {
+        val captures = HashSet<Move>()
+        val other = HashSet<Move>()
+        val index = this.sideToPlayToIndex(board.sideToPlay)
+        val opponentPieces = this.getPiecesForColor(board, 1 - index)
+        val ownPieces = this.getPiecesForColor(board, index)
+        val allPieces = opponentPieces or ownPieces
+        val splitPieces = this.splitPieces(pieceList[index])
+        splitPieces.forEach { piece ->
+            directions.forEach { direction ->
+                val attacks: Pair<ULong, ULong>
+                when (direction) {
+                    NORTH, NORTH_EAST, NORTH_WEST, WEST ->
+                        attacks = this.getPositiveSlidingAttacks(
+                            allPieces,
+                            opponentPieces,
+                            direction,
+                            piece.countTrailingZeroBits()
+                        )
 
-                SOUTH, SOUTH_EAST, SOUTH_WEST, EAST ->
-                    attacks = this.getNegativeSlidingAttacks(
-                        allPieces,
-                        opponentPieces,
-                        direction,
-                        piece.countTrailingZeroBits()
-                    )
+                    SOUTH, SOUTH_EAST, SOUTH_WEST, EAST ->
+                        attacks = this.getNegativeSlidingAttacks(
+                            allPieces,
+                            opponentPieces,
+                            direction,
+                            piece.countTrailingZeroBits()
+                        )
 
-                else -> throw RuntimeException("Unexpected direction")
-            }
-            if (attacks.second != 0UL) {
-                captures.add(Move(pieceType, index, piece, attacks.second))
-            }
-            var quietMoves = attacks.first
-            while (quietMoves != 0UL) {
-                val trailingZeroes = quietMoves.countTrailingZeroBits()
-                val quietMove = 1UL shl trailingZeroes
-                other.add(Move(pieceType, index, piece, quietMove))
-                quietMoves = quietMoves xor quietMove
+                    else -> throw RuntimeException("Unexpected direction")
+                }
+                if (attacks.second != 0UL) {
+                    captures.add(Move(pieceType, index, piece, attacks.second))
+                }
+                var quietMoves = attacks.first
+                while (quietMoves != 0UL) {
+                    val trailingZeroes = quietMoves.countTrailingZeroBits()
+                    val quietMove = 1UL shl trailingZeroes
+                    other.add(Move(pieceType, index, piece, quietMove))
+                    quietMoves = quietMoves xor quietMove
+                }
             }
         }
+        return GeneratedMoves(captures, other)
     }
 
     // Sliding attack calculation adapted from https://www.chessprogramming.org/Classical_Approach#Zero_Count
