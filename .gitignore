@@ -45,3 +45,6 @@ bin/
 .DS_Store
 
 .idea/
+
+terraform/.terraform*
+terraform/terraform.tfstate*

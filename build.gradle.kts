@@ -18,6 +18,7 @@ kotlin {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    // I'll be using the /actuator/health endpoint to return happy noises to the ALB's health checker
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
