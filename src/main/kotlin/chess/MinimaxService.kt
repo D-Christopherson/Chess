@@ -12,8 +12,6 @@ class MinimaxService(
     private val bitBoardService: BitBoardService
 ) {
     companion object {
-        val log = LoggerFactory.getLogger(MinimaxService::class.java)
-        val movesInGame = mutableListOf<String>()
         var moveGenerationTime = 0L
         var makingMoveTime = 0L
         var wallClockTime = 0L
@@ -27,57 +25,42 @@ class MinimaxService(
 
     fun evaluate(board: BoardState, depth: Int): String {
 
-        val killerMoves = Array<Move?>(100) {null}
+        val killerMoves = Array<Move?>(100) { null }
         val zobristHashesOfGame = HashMap<ULong, Int>()
 
         val transpositionTable = Array<TranspositionEntry?>(zobristTableSize + 1) { null }
-        var result: Pair<Move?, Int> = Pair(Move('a', 1, 0UL, 0UL), 0)
-        while (result.first != null) {
-            val start = System.currentTimeMillis()
-            var i = 0
-            while (true) {
-                result =
-                    this.minimax(
-                        board,
-                        i,
-                        Int.MIN_VALUE,
-                        Int.MAX_VALUE,
-                        board.sideToPlay,
-                        killerMoves,
-                        transpositionTable,
-                        zobristHashesOfGame
-                    )
-                wallClockTime += System.currentTimeMillis() - start
-                if (System.currentTimeMillis() - start < 100 && Math.abs(result.second) <= 200 && i < 20 || i < depth) {
-                    i++
-                } else {
-                    break
-                }
-            }
-            Arrays.setAll(transpositionTable) { null }
-            if (result.first == null) {
-                return "checkmate"
-            }
-
-            this.bitBoardService.makeMove(board, result.first!!)
-
-            val repetition = zobristHashesOfGame[board.getZobrastHash()]
-            if (repetition != null) {
-                zobristHashesOfGame[board.getZobrastHash()] = zobristHashesOfGame[board.getZobrastHash()]!! + 1
+        var result: Pair<Move?, Int>
+        val start = System.currentTimeMillis()
+        var i = 0
+        while (true) {
+            result =
+                this.minimax(
+                    board,
+                    i,
+                    Int.MIN_VALUE,
+                    Int.MAX_VALUE,
+                    board.sideToPlay,
+                    killerMoves,
+                    transpositionTable,
+                    zobristHashesOfGame
+                )
+            wallClockTime += System.currentTimeMillis() - start
+            if (System.currentTimeMillis() - start < 100 && Math.abs(result.second) <= 200 && i < 20 || i < depth) {
+                i++
             } else {
-                zobristHashesOfGame[board.getZobrastHash()] = 1
+                break
             }
-            this.bitBoardService.printBoard(board)
-            println()
-            movesInGame.add(
-                this.bitBoardService.ulongToSquare(result.first!!.sourceSquare)
-                        + this.bitBoardService.ulongToSquare(result.first!!.targetSquare)
-                        + if (result.first!!.promotionPiece != null) "=" + result.first!!.promotionPiece else ""
-            )
-            movesInGame.forEach { print("$it ") }
-            println()
-            println(result.second)
-            println("Statistics: depth: $i moveGeneration: $moveGenerationTime makingMove: $makingMoveTime wallClock: $wallClockTime isInCheck: $isInCheckTime evaluationTime: $evaluationTime moves: $moves transpositionHits: $transpositionHits transpositionBestMoves: $transpositionBestMoves")
+        }
+        Arrays.setAll(transpositionTable) { null }
+
+
+        this.bitBoardService.makeMove(board, result.first!!)
+        this.bitBoardService.printBoard(board)
+        println()
+        println(result.second)
+        println("Statistics: depth: $i moveGeneration: $moveGenerationTime makingMove: $makingMoveTime wallClock: $wallClockTime isInCheck: $isInCheckTime evaluationTime: $evaluationTime moves: $moves transpositionHits: $transpositionHits transpositionBestMoves: $transpositionBestMoves")
+        if (result.first == null) {
+            return if (result.second == 0) "stalemate" else "checkmate"
         }
         return this.bitBoardService.ulongToSquare(result.first!!.sourceSquare) +
                 this.bitBoardService.ulongToSquare(result.first!!.targetSquare)
