@@ -140,7 +140,7 @@ void sendUartCommand(uint8_t* data, char* command) {
   int rxBytes = uart_read_bytes(UART_NUM, data, RX_BUF_SIZE, 200 / portTICK_PERIOD_MS);
   if (rxBytes > 0) {
     data[rxBytes] = 0;
-    Serial.print((char*)data);
+    //Serial.print((char*)data);
 
   } else {
     //Serial.println("No data");
@@ -291,10 +291,6 @@ void setInhPins(int lowPin) {
 }
 
 void iterateMuxes(uint8_t* data, std::string board[8][8]) {
-  // Disable transmitter. An engineer on the Texas Instruments forum mentioned it's not a good idea to hot swap antennas.
-  // https://e2e.ti.com/support/wireless-connectivity/other-wireless-group/other-wireless/f/other-wireless-technologies-forum/639799/trf7970a-multiplexing-the-dlp-rfid2-external-antenna-output/2370572
-  //Serial.println("Disable RF");
-  sendUartCommand(data, "010A0003041000010000");
   int i = 0;
   for (int inhPin : muxInh) {
     setInhPins(inhPin);
@@ -305,8 +301,6 @@ void iterateMuxes(uint8_t* data, std::string board[8][8]) {
       // Swap antennas
       setMuxControlPins(j);
 
-      //Serial.println("Enable RF");
-      sendUartCommand(data, "010A0003041000210000");
 
       //Serial.println("Inventory Tags");
       sendUartCommand(data, "0109000304A0010000");
@@ -320,8 +314,6 @@ void iterateMuxes(uint8_t* data, std::string board[8][8]) {
         }
       }
 
-      //Serial.println("Disable RF");
-      sendUartCommand(data, "010A0003041000010000");
     }
     i++;
   }
