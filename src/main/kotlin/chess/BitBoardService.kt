@@ -31,29 +31,12 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
         val result = ArrayList<Move>(100)
         val killerMove = killerMoves[depth]
 
-        val pawnMoves = this.moveService.generatePawnMoves(board)
-        captures.addAll(pawnMoves.captures)
-        nonCaptures.addAll(pawnMoves.other)
-
-        val knightMoves = this.moveService.generateKnightMoves(board)
-        captures.addAll(knightMoves.captures)
-        nonCaptures.addAll(knightMoves.other)
-
-        val bishopMoves = this.moveService.generateBishopMoves(board)
-        captures.addAll(bishopMoves.captures)
-        nonCaptures.addAll(bishopMoves.other)
-
-        val queenMoves = this.moveService.generateQueenMoves(board)
-        captures.addAll(queenMoves.captures)
-        nonCaptures.addAll(queenMoves.other)
-
-        val rookMoves = this.moveService.generateRookMoves(board)
-        captures.addAll(rookMoves.captures)
-        nonCaptures.addAll(rookMoves.other)
-
-        val kingMoves = this.moveService.generateKingMoves(board)
-        captures.addAll(kingMoves.captures)
-        nonCaptures.addAll(kingMoves.other)
+        this.addMoves(this.moveService.generatePawnMoves(board), captures, nonCaptures)
+        this.addMoves(this.moveService.generateKnightMoves(board), captures, nonCaptures)
+        this.addMoves(this.moveService.generateBishopMoves(board), captures, nonCaptures)
+        this.addMoves(this.moveService.generateQueenMoves(board), captures, nonCaptures)
+        this.addMoves(this.moveService.generateRookMoves(board), captures, nonCaptures)
+        this.addMoves(this.moveService.generateKingMoves(board), captures, nonCaptures)
 
         val transpositionEntry =
             transpositionTable[(board.getZobrastHash() and MinimaxService.zobristTableSize.toULong()).toInt()]
@@ -78,6 +61,11 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
         return result
     }
 
+    private fun addMoves(generatedMoves: GeneratedMoves, captures: MutableList<Move>, nonCaptures: MutableList<Move>) {
+        captures.addAll(generatedMoves.captures)
+        nonCaptures.addAll(generatedMoves.other)
+    }
+
     /**
      * Update the existing board with a given move
      */
@@ -91,6 +79,8 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
         val opponentIndex = if (board.sideToPlay) 1 else 0
         val index = 1 - opponentIndex
         val opponentPieces = this.getPiecesForColor(board, opponentIndex)
+
+        // Handle any captures
         if (move.targetSquare and opponentPieces != 0UL) {
             if (board.queens[opponentIndex] and move.targetSquare != 0UL) {
                 board.updateQueens(opponentIndex, move.targetSquare)
@@ -122,12 +112,12 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
             }
         }
 
+        // For the piece moving, we'll need to record the square it started on as well as the square it moves to
         board.updatePieces(move.piece, index, move.sourceSquare)
         piecesToUndo.add(UndoPiece(move.piece, index, move.sourceSquare))
         if (move.piece == 'p') {
             board.fiftyMoveRuleCounter = 0
         }
-
         if (move.promotionPiece == null) {
             board.updatePieces(move.piece, index, move.targetSquare)
             piecesToUndo.add(UndoPiece(move.piece, index, move.targetSquare))

@@ -1,7 +1,7 @@
 package system
 
 
-import chess.EvaluateController
+import chess.EvaluateResult
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Value
@@ -20,7 +20,7 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
         val body = this.givenABody()
         val request = HttpEntity<MultiValueMap<String, String>>(body, headers)
 
-        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateController.EvaluateResult::class.java)
+        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
 
         assertThat(result.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -31,7 +31,7 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
         val body = this.givenABody()
         val request = HttpEntity<MultiValueMap<String, String>>(body, headers)
 
-        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateController.EvaluateResult::class.java)
+        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
 
         assertThat(result.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -43,7 +43,7 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
         val request = HttpEntity<MultiValueMap<String, String>>(body, headers)
 
 
-        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateController.EvaluateResult::class.java)
+        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
 
         // Most changes to the engine are going to change the exact move. Here we're just interested in making sure
         // that the plumbing is lined up.

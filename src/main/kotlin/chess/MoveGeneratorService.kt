@@ -410,7 +410,8 @@ class MoveGeneratorService {
             }
         }
 
-        // Short circuit if the opponent has no pieces even pointed at the king. So far this seems to make no improvement
+        // Short circuit if the opponent has no pieces even pointed at the king. So far this seems to make no meaningful
+        // improvement in runtime, but it does get executed.
         if (superPieceMoves[kingSquare] and opponentPieces == 0UL) {
             MinimaxService.isInCheckTime += System.currentTimeMillis() - start
             return false
@@ -469,6 +470,8 @@ class MoveGeneratorService {
             return true
         }
 
+        // This feels a bit awkward, but it's so we can detect if our king has moved illegally close to the opponent's
+        // king after making a move.
         val kingAttacks = kingMoves[kingSquare]
         attacks = 0UL
         kingAttacks.forEach { attack ->

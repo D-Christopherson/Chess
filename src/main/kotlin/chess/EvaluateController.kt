@@ -17,5 +17,5 @@ public class EvaluateController @Autowired constructor(
         return this.minimaxService.evaluate(board, depth)
     }
 
-    data class EvaluateResult(val move: String?, val depth: Int, val evaluation: Int)
 }
+data class EvaluateResult(val move: String?, val depth: Int, val evaluation: Int)

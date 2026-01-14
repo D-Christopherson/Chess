@@ -11,6 +11,8 @@ class MinimaxService(
     private val bitBoardService: BitBoardService
 ) {
     companion object {
+        // These stats won't be meaningful when deployed, but I use them regularly locally to make sure I don't
+        // introduce a change that significantly slows the engine down.
         var moveGenerationTime = 0L
         var makingMoveTime = 0L
         var wallClockTime = 0L
@@ -22,7 +24,7 @@ class MinimaxService(
         const val zobristTableSize = 0b1_11111111_11111111_11111111
     }
 
-    fun evaluate(board: BoardState, depth: Int): EvaluateController.EvaluateResult {
+    fun evaluate(board: BoardState, depth: Int): EvaluateResult {
 
         val killerMoves = Array<Move?>(100) { null }
         val zobristHashesOfGame = HashMap<ULong, Int>()
@@ -53,7 +55,7 @@ class MinimaxService(
 
 
         if (result.first == null) {
-            return EvaluateController.EvaluateResult(if (result.second == 0) "stalemate" else "checkmate", i, result.second)
+            return EvaluateResult(if (result.second == 0) "stalemate" else "checkmate", i, result.second)
         }
 
         this.bitBoardService.makeMove(board, result.first!!)
@@ -64,7 +66,7 @@ class MinimaxService(
 
         val move = this.bitBoardService.ulongToSquare(result.first!!.sourceSquare) +
                 this.bitBoardService.ulongToSquare(result.first!!.targetSquare)
-        return EvaluateController.EvaluateResult(move, i, result.second)
+        return EvaluateResult(move, i, result.second)
 
     }
 

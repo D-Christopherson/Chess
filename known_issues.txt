@@ -1,0 +1,7 @@
+Excessive object creation - I tried pooling Moves and the transposition entries so we could recycle them instead of instantiating
+new objects as well as using Longs instead of ULongs (which are not primitives in Kotlin), but there was no meaningful
+performance improvement.
+
+No castling
+
+No parameter to input previous board states to calculate 3-fold repetition
