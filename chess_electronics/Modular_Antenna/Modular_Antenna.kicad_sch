@@ -1811,6 +1811,306 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Relay:Relay_SPST-NC"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "K"
+				(at 11.43 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "Relay_SPST-NC"
+				(at 11.43 1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 11.43 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Relay SPST, normally closed, EN50005"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "1P1T 1-Form-B single pole throw NC"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Relay?SPST*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Relay_SPST-NC_0_1"
+				(rectangle
+					(start -8.255 1.905)
+					(end -1.905 -1.905)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -7.62 -1.905) (xy -2.54 1.905)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -5.08 5.08) (xy -5.08 1.905)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -5.08 -5.08) (xy -5.08 -1.905)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.905 0) (xy -1.27 0)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.635 0) (xy 0 0)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.635 0) (xy 1.27 0)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.905 0) (xy 2.54 0)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 5.08) (xy 2.54 2.54) (xy 3.175 3.175) (xy 2.54 3.81)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.175 0) (xy 3.81 0)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 5.08 -2.54) (xy 3.175 3.81)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 5.08 -2.54) (xy 5.08 -5.08)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Relay_SPST-NC_1_1"
+				(rectangle
+					(start -10.16 5.08)
+					(end 10.16 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -5.08 7.62 270)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "A1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -7.62 90)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "A2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 7.62 270)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -7.62 90)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:GND"
 			(power)
 			(pin_numbers
@@ -1913,6 +2213,18 @@
 			(embedded_fonts no)
 		)
 	)
+	(junction
+		(at 55.88 95.25)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4d84fe0d-1284-4dcc-97ec-9bfe804551cb")
+	)
+	(junction
+		(at 49.53 87.63)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "cd9057e0-6de4-4cf1-8065-9179df5c4ae2")
+	)
 	(wire
 		(pts
 			(xy 21.59 55.88) (xy 21.59 76.2)
@@ -1955,6 +2267,16 @@
 	)
 	(wire
 		(pts
+			(xy 36.83 95.25) (xy 36.83 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1768c4df-42d7-4fa6-8a1e-2ea03c831434")
+	)
+	(wire
+		(pts
 			(xy 171.45 53.34) (xy 17.78 53.34)
 		)
 		(stroke
@@ -1965,6 +2287,16 @@
 	)
 	(wire
 		(pts
+			(xy 55.88 95.25) (xy 74.93 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "20c41aab-ef2f-4b71-a0af-9b9acb35571b")
+	)
+	(wire
+		(pts
 			(xy 143.51 128.27) (xy 153.67 128.27)
 		)
 		(stroke
@@ -1972,6 +2304,16 @@
 			(type default)
 		)
 		(uuid "218d8d7d-d1fb-44d9-be0f-3c67276f0018")
+	)
+	(wire
+		(pts
+			(xy 36.83 87.63) (xy 48.26 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2734cbde-87c4-483b-af7a-3c882f252a71")
 	)
 	(wire
 		(pts
@@ -2012,6 +2354,16 @@
 			(type default)
 		)
 		(uuid "34e7c81b-9532-4d29-8aee-18ed19390e37")
+	)
+	(wire
+		(pts
+			(xy 52.07 100.33) (xy 52.07 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "370aad2e-3552-4463-80ef-ba8007754b43")
 	)
 	(wire
 		(pts
@@ -2085,16 +2437,6 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 86.36) (xy 52.07 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "508ef596-c178-4774-b7d8-0fcf709329e1")
-	)
-	(wire
-		(pts
 			(xy 85.09 146.05) (xy 85.09 77.47)
 		)
 		(stroke
@@ -2112,6 +2454,16 @@
 			(type default)
 		)
 		(uuid "59bb4506-3ad1-43be-a52e-55f4872ea937")
+	)
+	(wire
+		(pts
+			(xy 74.93 115.57) (xy 74.93 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5a29064c-7f39-4fe2-8edf-06bfd142c819")
 	)
 	(wire
 		(pts
@@ -2165,6 +2517,36 @@
 	)
 	(wire
 		(pts
+			(xy 49.53 87.63) (xy 49.53 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "68b6e57f-3f81-4667-b306-140eb5ed974b")
+	)
+	(wire
+		(pts
+			(xy 44.45 100.33) (xy 44.45 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6efed468-9518-4fab-96cf-4272e9917562")
+	)
+	(wire
+		(pts
+			(xy 59.69 100.33) (xy 59.69 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71b1a00e-022e-4cf8-885b-202e6106cedc")
+	)
+	(wire
+		(pts
 			(xy 120.65 135.89) (xy 153.67 135.89)
 		)
 		(stroke
@@ -2215,7 +2597,7 @@
 	)
 	(wire
 		(pts
-			(xy 67.31 59.69) (xy 67.31 83.82)
+			(xy 55.88 59.69) (xy 55.88 95.25)
 		)
 		(stroke
 			(width 0)
@@ -2255,7 +2637,7 @@
 	)
 	(wire
 		(pts
-			(xy 67.31 83.82) (xy 48.26 83.82)
+			(xy 36.83 95.25) (xy 55.88 95.25)
 		)
 		(stroke
 			(width 0)
@@ -2272,6 +2654,16 @@
 			(type default)
 		)
 		(uuid "9e00a87c-bbc2-42da-9c40-d525b3da212d")
+	)
+	(wire
+		(pts
+			(xy 48.26 78.74) (xy 52.07 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9e14c81a-ccd6-4aa1-8fe1-92ae1f903255")
 	)
 	(wire
 		(pts
@@ -2315,16 +2707,6 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 86.36) (xy 83.82 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a8bd38f5-37ad-42b7-938c-79c81e260bf0")
-	)
-	(wire
-		(pts
 			(xy 167.64 69.85) (xy 167.64 59.69)
 		)
 		(stroke
@@ -2362,6 +2744,16 @@
 			(type default)
 		)
 		(uuid "b0f928a4-db30-40da-8e85-657c501392ae")
+	)
+	(wire
+		(pts
+			(xy 62.23 115.57) (xy 74.93 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b2c7022a-f4c0-4050-99ba-f6265c2cb8c8")
 	)
 	(wire
 		(pts
@@ -2475,16 +2867,6 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 78.74) (xy 48.26 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c4dfa735-e37a-4f7f-ac24-db89bc1cf54a")
-	)
-	(wire
-		(pts
 			(xy 135.89 143.51) (xy 153.67 143.51)
 		)
 		(stroke
@@ -2535,7 +2917,17 @@
 	)
 	(wire
 		(pts
-			(xy 167.64 59.69) (xy 67.31 59.69)
+			(xy 59.69 82.55) (xy 105.41 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cd811e4c-a373-4761-92be-fc0805b5017e")
+	)
+	(wire
+		(pts
+			(xy 167.64 59.69) (xy 55.88 59.69)
 		)
 		(stroke
 			(width 0)
@@ -2552,6 +2944,16 @@
 			(type default)
 		)
 		(uuid "cf44da43-6b24-4da2-94b3-a5c685f0adaa")
+	)
+	(wire
+		(pts
+			(xy 48.26 87.63) (xy 48.26 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cf74a66d-b259-4bf3-8e81-d739410f7a1f")
 	)
 	(wire
 		(pts
@@ -2625,13 +3027,13 @@
 	)
 	(wire
 		(pts
-			(xy 83.82 82.55) (xy 83.82 86.36)
+			(xy 44.45 115.57) (xy 52.07 115.57)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e7cd3183-10f5-4443-9306-b4f170b1b521")
+		(uuid "ede1ad86-92d0-4876-852a-46b47e82e7d7")
 	)
 	(wire
 		(pts
@@ -2665,6 +3067,16 @@
 	)
 	(wire
 		(pts
+			(xy 49.53 100.33) (xy 44.45 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f38fb11a-a280-4a3b-b0f0-695887abff2d")
+	)
+	(wire
+		(pts
 			(xy 52.07 76.2) (xy 48.26 76.2)
 		)
 		(stroke
@@ -2672,16 +3084,6 @@
 			(type default)
 		)
 		(uuid "f3e14d4b-1175-47f1-8023-2235db9b224d")
-	)
-	(wire
-		(pts
-			(xy 105.41 82.55) (xy 83.82 82.55)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f8a66aed-cb36-4455-a1b5-890c874c2a35")
 	)
 	(wire
 		(pts
@@ -3739,6 +4141,83 @@
 			(project ""
 				(path "/2162e48e-6969-420a-8380-db6243e992e1"
 					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Relay:Relay_SPST-NC")
+		(at 57.15 107.95 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a9a633d1-0b1e-4170-afbd-4f4e319fcfa9")
+		(property "Reference" "K1"
+			(at 68.58 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Relay_SPST-NC"
+			(at 68.58 109.2199 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Relay_THT:Relay_SPST_Zettler-AZSR131"
+			(at 68.58 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 57.15 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Relay SPST, normally closed, EN50005"
+			(at 57.15 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "12"
+			(uuid "ea56e85f-0b09-495f-b13e-0258c73cf7f6")
+		)
+		(pin "A2"
+			(uuid "36902ce4-2947-498c-8017-610b564ac9c8")
+		)
+		(pin "A1"
+			(uuid "5fe1ceb6-14f6-4391-90b7-c0172be3b011")
+		)
+		(pin "11"
+			(uuid "659c326e-4241-4226-adef-776ba1ccc554")
+		)
+		(instances
+			(project ""
+				(path "/2162e48e-6969-420a-8380-db6243e992e1"
+					(reference "K1")
 					(unit 1)
 				)
 			)
