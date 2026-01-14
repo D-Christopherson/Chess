@@ -32,6 +32,6 @@ class FenParsingServiceUnitTest {
         assertThat(result.castling[1][0]).isTrue()
         assertThat(result.castling[1][1]).isTrue()
 
-        assertThat(result.enPassant).isEqualTo("-")
+        assertThat(result.enPassant).isEqualTo(0UL)
     }
 }

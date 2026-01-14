@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.chess.ui.theme.ChessTheme
 import okhttp3.FormBody
+import okhttp3.Headers
+import okhttp3.Headers.Companion.toHeaders
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.UUID
@@ -62,9 +64,13 @@ class MainActivity : ComponentActivity() {
                         .add("fen", fen)
                         .add("depth", "8")
                         .build()
+                    val headers = mutableMapOf<String, String>()
+                    headers["Authorization"] = resources.getString(R.string.AUTH_TOKEN)
+                    headers["Content-Type"] = "application/json"
                     val request = Request.Builder()
                         .url("https://chess.dakotachristopherson.com/evaluate")
                         .post(body)
+                        .headers(headers.toHeaders())
                         .build()
                     thread(block = {
                         val response = client.newCall(request).execute()

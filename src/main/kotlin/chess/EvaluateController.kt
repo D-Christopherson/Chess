@@ -12,8 +12,10 @@ public class EvaluateController @Autowired constructor(
 ) {
 
     @PostMapping("/evaluate")
-    fun evaluate(@RequestParam fen: String, @RequestParam depth: Int = 5): String {
+    fun evaluate(@RequestParam fen: String, @RequestParam depth: Int = 5): EvaluateResult {
         val board = this.fenParsingService.fromString(fen)
         return this.minimaxService.evaluate(board, depth)
     }
+
+    data class EvaluateResult(val move: String?, val depth: Int, val evaluation: Int)
 }

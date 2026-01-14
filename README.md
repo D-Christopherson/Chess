@@ -1,11 +1,11 @@
 This repo contains all the relevant files for a chess board I'm building.
 
 The top level directory contains a chess engine I wrote in Kotlin, serve with Spring Boot, and deploy to AWS with Terraform.
-I'd written a chess engine in Java using two dimensional arrays to represent the board early on in college, so I wanted 
-to try bitboards this time. The goal is to represent the board as a set of 64 bit numbers since operations with those should 
+I'd written a chess engine in Java using two-dimensional arrays to represent the board early on in college, so I wanted 
+to try bitboards this time. The goal is to represent the board as a set of 64-bit numbers since operations with those should 
 be much faster than an array. 
 
-Some handwavy math for moving a rook up one square:
+Some hand wavy math for moving a rook up one square:
 * One clock cycle to multiply the first index by the width of the outer array
 * One clock cycle to add that to the base address of the array
 * One clock cycle to multiply the second index by the data type the inner array contains
@@ -23,8 +23,8 @@ reader, and antennas together. These were created in KiCad.
 8 way switches, driving the RFID reader over UART, and converting the RFID tags into pieces to create the actual game state.
 
 `mobile_app` contains a proof of concept android app that reads the board state from the microcontroller over bluetooth 
-and sends that state to the chess engine in AWS over the internet. The ESP32 could do this itself since it has wifi capabilities,
-but it'd be a huge pain to reprogram the wifi credentials if I want to take the board to a club.
+and sends that state to the chess engine in AWS over the internet. The ESP32 could do this itself since it has Wi-Fi capabilities,
+but it'd be a huge pain to reprogram the Wi-Fi credentials if I want to take the board to a club.
 
 Here's an MS Paint breakdown of the board itself.
 
@@ -36,9 +36,11 @@ The bill of materials for this build so far is:
 * ESP32 dev board - $16 for a 3 pack on Amazon
 * 8x SN74LV4051AN 8 way switch - $5.52 for 10 on DigiKey (cheaper than buying 8)
 * 64x 13.56MHz RF antennas - $32 on DigiKey
-* 65x 10nF ceramic capacitor - I bought a variety pack and used 47 nF capcitors after running out of 10nF. These will cost 
+* 65x 10nF ceramic capacitor - I bought a variety pack and used 47 nF capacitors after running out of 10nF. These will cost 
 \$5-$30 on DigiKey. They just need to be capacitors that don't have polarity and are large enough to not add a ton of impedance 
 (10nF is plenty).
+* 8x 16 position screw terminals - $16 on DigiKey. I bought these not realizing that they're just 2 and 3 position terminals
+connected to each other with a little plastic slide. Buying 64x 2 position terminals might be cheaper.
 * DLP RFID2 - $37.95 on DigiKey. I've read that this chip is pretty outdated and has some firmware bugs. There might be 
 something cheaper nowadays. The key is just to make sure it's compatible with the same frequency as the tags/antennas used 
 and also has a pin for an external antenna.
@@ -46,3 +48,12 @@ and also has a pin for an external antenna.
 called `Modular_Antenna` which crams the screw terminals and capacitors into a small board independent of one that would 
 house the microcontroller and RFID reader (I have not designed this motherboard yet). This should bring the cost down to 
 $30 or so since there's less wasted space. I'm just not sure if it's acceptable to run signal lines so close to other traces.
+
+For the LCD screen you'll also need:
+* 1x LCD screen - I'm using an LCD1602 module. It looks like these run \$5-\$10 depending on the source.
+* 8x normally closed (Form B) relays. I quickly ran out of GPIO pins wiring each INH pin of the multiplexers to the
+microcontroller directly, so these are going to connect the power plane to the INH pin. I'll have a 9th multiplexer that
+connects to each of the relays. This brings the pins used for the multiplexers down to 6 from 11.
+* 2x additional multiplexers. One for the multiplexer that now controls the INH pins and one for the LCD screen module.
+The LCD screen has 8 data pins which the multiplexer will control as well as three pins for controlling the data on screen
+and one pin for contrast.

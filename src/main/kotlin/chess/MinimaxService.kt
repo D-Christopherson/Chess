@@ -23,7 +23,7 @@ class MinimaxService(
         const val zobristTableSize = 0b1_11111111_11111111_11111111
     }
 
-    fun evaluate(board: BoardState, depth: Int): String {
+    fun evaluate(board: BoardState, depth: Int): EvaluateController.EvaluateResult {
 
         val killerMoves = Array<Move?>(100) { null }
         val zobristHashesOfGame = HashMap<ULong, Int>()
@@ -51,19 +51,22 @@ class MinimaxService(
                 break
             }
         }
-        Arrays.setAll(transpositionTable) { null }
 
+
+        if (result.first == null) {
+            return EvaluateController.EvaluateResult(if (result.second == 0) "stalemate" else "checkmate", i, result.second)
+        }
 
         this.bitBoardService.makeMove(board, result.first!!)
         this.bitBoardService.printBoard(board)
         println()
         println(result.second)
         println("Statistics: depth: $i moveGeneration: $moveGenerationTime makingMove: $makingMoveTime wallClock: $wallClockTime isInCheck: $isInCheckTime evaluationTime: $evaluationTime moves: $moves transpositionHits: $transpositionHits transpositionBestMoves: $transpositionBestMoves")
-        if (result.first == null) {
-            return if (result.second == 0) "stalemate" else "checkmate"
-        }
-        return this.bitBoardService.ulongToSquare(result.first!!.sourceSquare) +
+
+        val move = this.bitBoardService.ulongToSquare(result.first!!.sourceSquare) +
                 this.bitBoardService.ulongToSquare(result.first!!.targetSquare)
+        return EvaluateController.EvaluateResult(move, i, result.second)
+
     }
 
     fun minimax(

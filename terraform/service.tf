@@ -23,7 +23,7 @@ resource "aws_ecs_task_definition" "service" {
   memory      = 512
   requires_compatibilities = ["FARGATE"]
   network_mode = "awsvpc"
-  task_role_arn            = aws_iam_role.service.arn
+  task_role_arn      = aws_iam_role.service.arn
   execution_role_arn = aws_iam_role.cluster.arn
 
   container_definitions = jsonencode([
@@ -31,6 +31,12 @@ resource "aws_ecs_task_definition" "service" {
       name        = "${local.prefix}-container"
       image       = "${aws_ecr_repository.ecr.repository_url}:latest"
       essential   = true
+      environment = [
+        {
+          name = "AUTH_TOKEN",
+          value = var.auth_token
+        },
+      ]
       portMappings = [
         {
           containerPort = 8080
