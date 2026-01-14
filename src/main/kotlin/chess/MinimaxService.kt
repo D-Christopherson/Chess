@@ -1,6 +1,5 @@
 package chess
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.math.max
@@ -99,111 +98,76 @@ class MinimaxService(
         }
 
         if (maximizingPlayer) {
-            var value = Int.MIN_VALUE
+            var currentEvaluation = Int.MIN_VALUE
             val moves = this.bitBoardService.generateMoves(board, killerMoves, depth, transpositionTable)
             var newAlpha = alpha
             var bestMove: Move? = null
             run search@{
                 moves.forEach { move ->
-                    val undo = this.bitBoardService.makeMove(board, move)
-                    if (this.bitBoardService.isInCheck(board)) {
-                        this.bitBoardService.undoMove(board, undo)
+                    val result = this.makeAndUndoMove(board, move, zobristHashesOfGame) {
+                        this.minimax(
+                            board,
+                            depth - 1,
+                            newAlpha,
+                            beta,
+                            false,
+                            killerMoves,
+                            transpositionTable,
+                            zobristHashesOfGame
+                        )
+                    }
+                    if (result == null) {
                         return@forEach
                     }
-
-                    this.incrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
-
-                    val result = this.minimax(
-                        board,
-                        depth - 1,
-                        newAlpha,
-                        beta,
-                        false,
-                        killerMoves,
-                        transpositionTable,
-                        zobristHashesOfGame
-                    )
-
-                    this.decrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
-
-                    this.bitBoardService.undoMove(board, undo)
-                    if (result.second > value || bestMove == null) {
-                        value = result.second
+                    if (result.second > currentEvaluation || bestMove == null) {
+                        currentEvaluation = result.second
                         bestMove = move
                     }
-                    newAlpha = max(newAlpha, value)
-                    if (value >= beta) {
+                    newAlpha = max(newAlpha, currentEvaluation)
+                    if (currentEvaluation >= beta) {
                         killerMoves[depth] = move
                         return@search
                     }
                 }
             }
-            if ((entry == null || entry.depth <= depth) && bestMove != null) {
-                transpositionTable[(board.getZobrastHash() and zobristTableSize.toULong()).toInt()] =
-                    TranspositionEntry(board.getZobrastHash(), value, depth, false, value >= beta, bestMove)
-            }
 
-            // No moves but not in check is stalemate
-            board.updateSideToPlay(!board.sideToPlay)
-            if (bestMove == null && !this.bitBoardService.isInCheck(board)) {
-                board.updateSideToPlay(!board.sideToPlay)
-                return Pair(bestMove, 0)
-            }
-            board.updateSideToPlay(!board.sideToPlay)
-            return Pair(bestMove, value)
+            this.updateTranspositionEntry(entry, depth, bestMove, transpositionTable, board, currentEvaluation, false, currentEvaluation >= beta)
+            return this.checkForStalemateAndReturnBestMove(board, bestMove, currentEvaluation)
         } else {
-            var value = Int.MAX_VALUE
+            var currentEvaluation = Int.MAX_VALUE
             val moves = this.bitBoardService.generateMoves(board, killerMoves, depth, transpositionTable)
             var newBeta = beta
             var bestMove: Move? = null
             run search@{
                 moves.forEach { move ->
-                    val undo = this.bitBoardService.makeMove(board, move)
-                    if (this.bitBoardService.isInCheck(board)) {
-                        this.bitBoardService.undoMove(board, undo)
+                    val result = this.makeAndUndoMove(board, move, zobristHashesOfGame) {
+                        this.minimax(
+                            board,
+                            depth - 1,
+                            alpha,
+                            newBeta,
+                            true,
+                            killerMoves,
+                            transpositionTable,
+                            zobristHashesOfGame
+                        )
+                    }
+                    if (result == null) {
                         return@forEach
                     }
-
-                    this.incrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
-
-                    val result = this.minimax(
-                        board,
-                        depth - 1,
-                        alpha,
-                        newBeta,
-                        true,
-                        killerMoves,
-                        transpositionTable,
-                        zobristHashesOfGame
-                    )
-
-                    this.decrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
-
-                    this.bitBoardService.undoMove(board, undo)
-                    if (result.second < value || bestMove == null) {
-                        value = result.second
+                    if (result.second < currentEvaluation || bestMove == null) {
+                        currentEvaluation = result.second
                         bestMove = move
                     }
-                    newBeta = min(newBeta, value)
-                    if (value <= alpha) {
+                    newBeta = min(newBeta, currentEvaluation)
+                    if (currentEvaluation <= alpha) {
                         killerMoves[depth] = move
                         return@search
                     }
                 }
             }
-            if ((entry == null || entry.depth <= depth) && bestMove != null) {
-                transpositionTable[(board.getZobrastHash() and zobristTableSize.toULong()).toInt()] =
-                    TranspositionEntry(board.getZobrastHash(), value, depth, value <= alpha, false, bestMove)
-            }
-
-            // No moves but not in check is stalemate
-            board.updateSideToPlay(!board.sideToPlay)
-            if (bestMove == null && !this.bitBoardService.isInCheck(board)) {
-                board.updateSideToPlay(!board.sideToPlay)
-                return Pair(bestMove, 0)
-            }
-            board.updateSideToPlay(!board.sideToPlay)
-            return Pair(bestMove, value)
+            this.updateTranspositionEntry(entry, depth, bestMove, transpositionTable, board, currentEvaluation, currentEvaluation <= alpha, false)
+            return this.checkForStalemateAndReturnBestMove(board, bestMove, currentEvaluation)
         }
     }
 
@@ -221,6 +185,50 @@ class MinimaxService(
                 repetitions[hash] = entry - 1
             }
         }
+    }
+
+    private fun <R> makeAndUndoMove(
+        board: BoardState,
+        move: Move,
+        zobristHashesOfGame: MutableMap<ULong, Int>,
+        body: () -> R
+    ): R? {
+        val undo = this.bitBoardService.makeMove(board, move)
+        if (this.bitBoardService.isInCheck(board)) {
+            this.bitBoardService.undoMove(board, undo)
+            return null
+        }
+        this.incrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
+
+        val result = body.invoke()
+
+        this.decrementRepetitionCount(board.getZobrastHash(), zobristHashesOfGame)
+        this.bitBoardService.undoMove(board, undo)
+        return result
+    }
+
+    private fun updateTranspositionEntry(
+        entry: TranspositionEntry?,
+        depth: Int,
+        bestMove: Move?,
+        transpositionTable: Array<TranspositionEntry?>,
+        board: BoardState,
+        eval: Int,
+        alphaCutoff: Boolean,
+        betaCutoff: Boolean
+    ) {
+        if ((entry == null || entry.depth <= depth) && bestMove != null) {
+            transpositionTable[(board.getZobrastHash() and zobristTableSize.toULong()).toInt()] =
+                TranspositionEntry(board.getZobrastHash(), eval, depth, alphaCutoff, betaCutoff, bestMove)
+        }
+    }
+
+    private fun checkForStalemateAndReturnBestMove(board: BoardState, bestMove: Move?, currentEvaluation: Int): Pair<Move?, Int> {
+        // No moves but not in check is stalemate
+        board.updateSideToPlay(!board.sideToPlay)
+        val finalEval = if (bestMove == null && !this.bitBoardService.isInCheck(board)) 0 else currentEvaluation
+        board.updateSideToPlay(!board.sideToPlay)
+        return Pair(bestMove, finalEval)
     }
 }
 
