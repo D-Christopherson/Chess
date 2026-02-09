@@ -18,7 +18,7 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
     fun `evaluate -- no auth token -- returns 401`() {
         val headers = this.givenHeaders(auth = null)
         val body = this.givenABody()
-        val request = HttpEntity<MultiValueMap<String, String>>(body, headers)
+        val request = HttpEntity(body, headers)
 
         val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
 
@@ -26,21 +26,32 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
     }
 
     @Test
-    fun `evaluate -- no incorrect token -- returns 401`() {
+    fun `evaluate -- incorrect token -- returns 401`() {
         val headers = this.givenHeaders(auth = "abc")
         val body = this.givenABody()
-        val request = HttpEntity<MultiValueMap<String, String>>(body, headers)
+        val request = HttpEntity(body, headers)
 
         val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
 
         assertThat(result.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
+    }
+
+    @Test
+    fun `evaluate -- with invalid fen -- returns 400`() {
+        val headers = this.givenHeaders()
+        val body = this.givenABody(fen = "abc")
+        val request = HttpEntity(body, headers)
+
+        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
+
+        assertThat(result.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
     }
 
     @Test
     fun `evaluate -- with depth of 5 -- successfully evaluates position`() {
         val headers = this.givenHeaders()
         val body = this.givenABody(depth = 5)
-        val request = HttpEntity<MultiValueMap<String, String>>(body, headers)
+        val request = HttpEntity(body, headers)
 
 
         val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
@@ -54,16 +65,19 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
         assertThat(result.body.depth).isGreaterThanOrEqualTo(5)
     }
 
-    private fun givenABody(depth: Int = 0): LinkedMultiValueMap<String, String> {
-        val body = LinkedMultiValueMap<String, String>()
-        body["fen"] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    private fun givenABody(
+        depth: Int = 0,
+        fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    ): Map<String, String> {
+        val body = mutableMapOf<String, String>()
+        body["fen"] = fen
         body["depth"] = depth.toString()
         return body
     }
 
     private fun givenHeaders(auth: String? = this.authToken): HttpHeaders {
         val headers = HttpHeaders()
-        headers["ContentType"] = MediaType.APPLICATION_JSON_VALUE
+        headers.contentType = MediaType.APPLICATION_JSON
         if (auth != null) {
             headers["Authorization"] = auth
         }

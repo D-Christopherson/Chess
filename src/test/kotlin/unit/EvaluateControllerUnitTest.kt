@@ -1,9 +1,6 @@
 package unit
 
-import chess.BoardState
-import chess.EvaluateController
-import chess.FenParsingService
-import chess.MinimaxService
+import chess.*
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.mock
@@ -19,7 +16,7 @@ class EvaluateControllerUnitTest {
         val mockMinimaxService: MinimaxService = mock()
         val subject = this.givenASubject(minimaxService = mockMinimaxService)
 
-        subject.evaluate("")
+        subject.evaluate(EvaluateRequest(fen = ""))
 
         verify(mockMinimaxService).evaluate(any<BoardState>(), eq(5))
     }
