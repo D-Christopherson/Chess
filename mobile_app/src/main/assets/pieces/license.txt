@@ -1,0 +1,3 @@
+Author: Cburnett
+Source: https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
+License: https://creativecommons.org/licenses/by-sa/3.0/deed.en

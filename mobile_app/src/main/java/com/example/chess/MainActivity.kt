@@ -21,11 +21,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.chess.ui.theme.ChessTheme
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import okhttp3.FormBody
 import okhttp3.Headers
 import okhttp3.Headers.Companion.toHeaders
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.util.UUID
 import kotlin.concurrent.thread
 
@@ -33,7 +39,6 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         requestMultiplePermissions.launch(
             arrayOf(
                 Manifest.permission.BLUETOOTH_SCAN,
@@ -41,6 +46,11 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.INTERNET,
             )
         )
+
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(ChessBoard(this, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", EvaluateResult("b2b3", 8, -1)))
+
         val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
         val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter!!
         val pairedDevices: Set<BluetoothDevice> = bluetoothAdapter.bondedDevices
@@ -57,37 +67,30 @@ class MainActivity : ComponentActivity() {
                         Thread.sleep(500)
                     }
                     Thread.sleep(500)
+
                     val fen = socket.inputStream.readNBytes(socket.inputStream.available())
                         .decodeToString()
                     Log.d("Main", fen)
-                    val body = FormBody.Builder()
-                        .add("fen", fen)
-                        .add("depth", "8")
-                        .build()
+
+
+                    val body = JSONObject()
+                    body.put("fen", fen)
+                    body.put("depth", 8)
                     val headers = mutableMapOf<String, String>()
                     headers["Authorization"] = resources.getString(R.string.AUTH_TOKEN)
                     headers["Content-Type"] = "application/json"
                     val request = Request.Builder()
                         .url("https://chess.dakotachristopherson.com/evaluate")
-                        .post(body)
+                        .post(body.toString().toRequestBody("application/json".toMediaType()))
                         .headers(headers.toHeaders())
                         .build()
                     thread(block = {
                         val response = client.newCall(request).execute()
                         Log.d("Main", response.body.string())
+                        val evaluateResult = Json.decodeFromString<EvaluateResult>(response.body.string())
+                        val chessBoard = ChessBoard(this, fen, evaluateResult)
+                        setContentView(chessBoard)
                     }).join()
-
-                }
-            }
-        }
-        enableEdgeToEdge()
-        setContent {
-            ChessTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
                 }
             }
         }
@@ -101,19 +104,5 @@ class MainActivity : ComponentActivity() {
         }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ChessTheme {
-        Greeting("Android")
-    }
-}
-
+@Serializable
+data class EvaluateResult(val move: String?, val depth: Int, val evaluation: Int)
