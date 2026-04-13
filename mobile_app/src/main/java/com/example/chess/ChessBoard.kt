@@ -88,22 +88,24 @@ fun ChessBoard(fen: String, evaluateResult: EvaluateResult) {
                     .size(Dp(squareSize * 4 + evalBarOffset))
                     .background(Color.LightGray)
             )
-            // If I fill the entire row, the center bar just disappears.
-            // It feels like there should be a workaround but I haven't found one.
             Box(
                 modifier = Modifier
-                    .size(Dp(squareSize * 3.9f - evalBarOffset))
+                    .size(Dp(squareSize * 4 - evalBarOffset))
                     .background(Color.Black)
             )
+        }
+        // If I try to put this box in the row above it disappears unless the second part of the
+        // eval bar stops just short of the edge of the screen. Instead I'll use this row which
+        // I want for some padding anyway and just offset it upwards.
+        Row(modifier = Modifier.height(Dp(squareSize / 2))) {
             Box(
                 modifier = Modifier
                     .width(Dp(squareSize / 8))
                     .height(squareSize.dp)
-                    .absoluteOffset(Dp(-squareSize * 3.9f - squareSize / 16))
+                    .absoluteOffset(Dp(squareSize * 4 - squareSize / 16), Dp(-squareSize / 2))
                     .background(Color.DarkGray)
             )
         }
-        Row(modifier = Modifier.height(Dp(squareSize / 2))) {}
         EvalText("Evaluation: ${evaluateResult.evaluation}", squareSize)
         EvalText("Depth: ${evaluateResult.depth}", squareSize)
         EvalText("Best move: ${evaluateResult.move}", squareSize)
