@@ -49,7 +49,9 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(ChessBoard(this, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", EvaluateResult("b2b3", 8, -1)))
+        setContent {
+            ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", EvaluateResult("b2b3", 8, -1))
+        }
 
         val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
         val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter!!
@@ -88,8 +90,9 @@ class MainActivity : ComponentActivity() {
                         val response = client.newCall(request).execute()
                         Log.d("Main", response.body.string())
                         val evaluateResult = Json.decodeFromString<EvaluateResult>(response.body.string())
-                        val chessBoard = ChessBoard(this, fen, evaluateResult)
-                        setContentView(chessBoard)
+                        setContent {
+                            ChessBoard(fen, evaluateResult)
+                        }
                     }).join()
                 }
             }

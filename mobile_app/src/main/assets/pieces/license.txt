@@ -1,3 +1,5 @@
 Author: Cburnett
 Source: https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
 License: https://creativecommons.org/licenses/by-sa/3.0/deed.en
+
+The XML files in res/drawable are generated with Android Studio using these SVGs.
