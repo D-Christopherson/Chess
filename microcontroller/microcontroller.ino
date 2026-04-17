@@ -71,7 +71,7 @@ std::map<int, int> antennaLocationToSquare = {
   {30, 30}, {31, 31}, {32, 32}, {33, 33}, {34, 34}, {35, 35}, {36, 36}, {37, 37},
   {40, 40}, {41, 41}, {42, 42}, {43, 43}, {44, 44}, {45, 45}, {46, 46}, {47, 47},
   {50, 50}, {51, 51}, {52, 52}, {53, 53}, {54, 54}, {55, 55}, {56, 56}, {57, 57},
-  {60, 60}, {61, 61}, {62, 62}, {63, 63}, {64, 64}, {65, 65}, {66, 66}, {67, 67},
+  {60, 67}, {61, 66}, {62, 65}, {63, 64}, {64, 63}, {65, 62}, {66, 61}, {67, 60},
   {70, 70}, {71, 71}, {72, 72}, {73, 73}, {74, 74}, {75, 75}, {76, 76}, {77, 77},
 };
 
@@ -222,6 +222,23 @@ void setup() {
 
 void loop() {
   uint8_t* data = (uint8_t*)malloc(RX_BUF_SIZE * 2);
+  if (SerialBT.isReady()) {
+    String command = SerialBT.readStringUntil('#');
+    Serial.println(command);
+    if (command.compareTo("SCAN") == 0) {
+      Serial.println("Scanning");
+      // For now there's only one action. Later there might be instruction for the LCD screen or moving the stepper motors.
+    } else {
+      Serial.println("Unrecognized command");
+      free(data);
+      return;
+     }
+  } else {
+    free(data);
+    Serial.println("Unable to connect via bluetooth");
+    return;
+  }
+  
   // This makes me miss Kotlin's initialization functions
   std::string board[8][8];
   for (int i = 0; i < 8; i++) {
@@ -264,14 +281,9 @@ void loop() {
   fen += " w KQkq - 0 0";
   Serial.println(fen.c_str());
 
-  if (SerialBT.isReady()) {
-    SerialBT.write((uint8_t*)fen.c_str(), fen.length());
-    Serial.println("Sent FEN over bluetooth");
-  } else {
-    Serial.println("Unable to connect via bluetooth");
-  }
-
   free(data);
+  SerialBT.write((uint8_t*)fen.c_str(), fen.length());
+  Serial.println("Sent FEN over bluetooth");
   return;
 }
 
