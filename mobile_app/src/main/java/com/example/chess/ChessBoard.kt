@@ -1,9 +1,11 @@
 package com.example.chess
 
+import android.Manifest
 import android.bluetooth.BluetoothSocket
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +35,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.Headers.Companion.toHeaders
@@ -46,7 +52,7 @@ import kotlin.math.min
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@androidx.annotation.RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+@RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
 fun ChessBoard(
     fen: String,
     evaluateResult: EvaluateResult,
@@ -93,60 +99,26 @@ fun ChessBoard(
                     .height(squareSize.dp)
                     .offset(squareSize.dp)
             ) {
-                ScanBoardButton {
-                    thread(block = {
-                        if (!socket.isConnected) {
-                            socket.connect()
-                        }
-                        socket.outputStream.write("SCAN#".toByteArray())
-                        Log.d("BT", "Scan board")
-                        while (socket.inputStream.available() == 0) {
-                            Log.d("BT", "No data")
-                            Thread.sleep(500)
-                        }
-                        Thread.sleep(500)
-
-                        val fen = socket.inputStream.readNBytes(socket.inputStream.available())
-                            .decodeToString()
-                        Log.d("BT", fen)
-                        boardState = fen
-                    })
+                ScanBoardButton(socket) { newState ->
+                    boardState = newState
                 }
-                EvaluateButton(modifier = Modifier.offset(squareSize.dp)) {
-                    val body = JSONObject()
-                    if (whiteToPlay) {
-                        body.put("fen", boardState.replace("b", "w"))
-                    } else {
-                        body.put("fen", boardState.replace("w", "b"))
-                    }
-                    body.put("depth", 8)
-                    val headers = mutableMapOf<String, String>()
-                    headers["Authorization"] = authToken
-                    headers["Content-Type"] = "application/json"
-                    val request = Request.Builder()
-                        .url("https://chess.dakotachristopherson.com/evaluate")
-                        .post(body.toString().toRequestBody("application/json".toMediaType()))
-                        .headers(headers.toHeaders())
-                        .build()
-                    thread(block = {
-                        try {
-                            Log.d("Engine", "Sending evaluate request")
-                            val response = client.newCall(request).execute()
-                            val body = response.body.string()
-                            Log.d("Engine", body)
-                            val evaluateResult =
-                                Json.decodeFromString<EvaluateResult>(body)
-                            evaluation = evaluateResult.evaluation
-                            depth = evaluateResult.depth
-                            bestMove = evaluateResult.move
-                        } catch (e: Exception) {
-                            Log.d("Engine", e.stackTraceToString())
-                        }
-                    })
+                EvaluateButton(
+                    boardState,
+                    whiteToPlay,
+                    authToken,
+                    client,
+                    Modifier.offset(squareSize.dp)
+                ) { newEval, newDepth, newMove ->
+                    evaluation = newEval
+                    depth = newDepth
+                    bestMove = newMove
                 }
-                Switch(checked = !whiteToPlay, modifier = Modifier.offset(squareSize.dp), onCheckedChange = {
-                    whiteToPlay = !it
-                })
+                Switch(
+                    checked = !whiteToPlay,
+                    modifier = Modifier.offset(squareSize.dp),
+                    onCheckedChange = {
+                        whiteToPlay = !it
+                    })
             }
         }
     }
@@ -238,15 +210,75 @@ fun EvalBar(evaluateResult: Int, squareSize: Float) {
 }
 
 @Composable
-fun ScanBoardButton(onClick: () -> Unit) {
-    OutlinedButton(onClick = { onClick() }) {
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+fun ScanBoardButton(socket: BluetoothSocket, writeBack: (String) -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
+    OutlinedButton(onClick = {
+        coroutineScope.launch(Dispatchers.Default) {
+            if (!socket.isConnected) {
+                socket.connect()
+            }
+            socket.outputStream.write("SCAN#".toByteArray())
+            Log.d("BT", "Scan board")
+
+            while (socket.inputStream.available() == 0) {
+                Log.d("BT", "No data")
+                delay(500)
+            }
+            delay(500)
+
+            val fen = socket.inputStream.readNBytes(socket.inputStream.available()).decodeToString()
+            Log.d("BT", fen)
+            writeBack(fen)
+        }
+    }) {
         Text("Scan Board")
     }
 }
 
 @Composable
-fun EvaluateButton(modifier: Modifier, onClick: () -> Unit) {
-    OutlinedButton(onClick = { onClick() }, modifier = modifier) {
+fun EvaluateButton(
+    boardState: String,
+    whiteToPlay: Boolean,
+    authToken: String,
+    client: OkHttpClient,
+    modifier: Modifier,
+    writeBack: (Int, Int, String?) -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
+    OutlinedButton(onClick = {
+        coroutineScope.launch {
+            val body = JSONObject()
+            if (whiteToPlay) {
+                body.put("fen", boardState.replace("b", "w"))
+            } else {
+                body.put("fen", boardState.replace("w", "b"))
+            }
+            body.put("depth", 8)
+            val headers = mutableMapOf<String, String>()
+            headers["Authorization"] = authToken
+            headers["Content-Type"] = "application/json"
+            val request = Request.Builder()
+                .url("https://chess.dakotachristopherson.com/evaluate")
+                .post(body.toString().toRequestBody("application/json".toMediaType()))
+                .headers(headers.toHeaders())
+                .build()
+            thread(block = {
+                try {
+                    Log.d("Engine", "Sending evaluate request")
+                    val response = client.newCall(request).execute()
+                    val body = response.body.string()
+                    Log.d("Engine", body)
+                    val evaluateResult =
+                        Json.decodeFromString<EvaluateResult>(body)
+                    writeBack(evaluateResult.evaluation, evaluateResult.depth, evaluateResult.move)
+                } catch (e: Exception) {
+                    Log.d("Engine", e.stackTraceToString())
+                }
+            })
+        }
+    }, modifier = modifier) {
         Text("Evaluate")
     }
 }
