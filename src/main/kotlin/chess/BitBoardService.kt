@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 
 @ExperimentalUnsignedTypes
 @Service
-class BitBoardService(private val moveService: MoveGeneratorService) {
+open class BitBoardService(private val moveService: MoveGeneratorService) {
 
     fun evaluatePosition(board: BoardState): Int {
         val start = System.currentTimeMillis()
@@ -251,6 +251,15 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
         }
     }
 
+    fun getAllPieces(board: BoardState): ULong {
+        return board.pawns[0] or board.pawns[1] or
+                board.knights[0] or board.knights[1] or
+                board.bishops[0] or board.bishops[1] or
+                board.rooks[0] or board.rooks[1] or
+                board.queens[0] or board.queens[1] or
+                board.king[0] or board.king[1]
+    }
+
     private fun getPiecesForColor(board: BoardState, color: Int): ULong {
         return board.pawns[color] or
                 board.knights[color] or
@@ -258,14 +267,5 @@ class BitBoardService(private val moveService: MoveGeneratorService) {
                 board.rooks[color] or
                 board.queens[color] or
                 board.king[color]
-    }
-
-    private fun getAllPieces(board: BoardState): ULong {
-        return board.pawns[0] or board.pawns[1] or
-                board.knights[0] or board.knights[1] or
-                board.bishops[0] or board.bishops[1] or
-                board.rooks[0] or board.rooks[1] or
-                board.queens[0] or board.queens[1] or
-                board.king[0] or board.king[1]
     }
 }

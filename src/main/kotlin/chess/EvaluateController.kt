@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-public class EvaluateController @Autowired constructor(
+class EvaluateController @Autowired constructor(
     private val fenParsingService: FenParsingService,
     private val minimaxService: MinimaxService
 ) {

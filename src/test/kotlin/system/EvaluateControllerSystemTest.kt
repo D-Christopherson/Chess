@@ -9,8 +9,6 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 
 class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToken: String) : SystemTest() {
 
@@ -20,7 +18,7 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
         val body = this.givenABody()
         val request = HttpEntity(body, headers)
 
-        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
+        val result = this.restTemplate!!.postForEntity("/evaluate", request, String::class.java)
 
         assertThat(result.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -31,7 +29,7 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
         val body = this.givenABody()
         val request = HttpEntity(body, headers)
 
-        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
+        val result = this.restTemplate!!.postForEntity("/evaluate", request, String::class.java)
 
         assertThat(result.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
@@ -42,7 +40,7 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
         val body = this.givenABody(fen = "abc")
         val request = HttpEntity(body, headers)
 
-        val result = this.restTemplate!!.postForEntity("/evaluate", request, EvaluateResult::class.java)
+        val result = this.restTemplate!!.postForEntity("/evaluate", request, String::class.java)
 
         assertThat(result.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
     }
@@ -61,8 +59,8 @@ class EvaluateControllerSystemTest(@Value("\${auth.token}") private val authToke
         assertThat(result.statusCode).isEqualTo(HttpStatus.OK)
         // Hate to use something as slow as a regex in a test, but it feels better than ignoring the body entirely.
         assertThat(result.body).isNotNull()
-        assertThat(result.body.move).isNotNull().matches("[a-h][1-8][a-h][1-8]")
-        assertThat(result.body.depth).isGreaterThanOrEqualTo(5)
+        assertThat(result.body!!.move).isNotNull().matches("[a-h][1-8][a-h][1-8]")
+        assertThat(result.body!!.depth).isGreaterThanOrEqualTo(5)
     }
 
     private fun givenABody(

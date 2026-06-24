@@ -87,6 +87,7 @@ class FenParsingService {
         if (piece.isLowerCase()) return 1
         return 0
     }
+
     private fun squareToULong(square: String): ULong {
         val file = when (square[0]) {
             'a' -> 1

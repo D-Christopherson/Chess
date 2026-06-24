@@ -2,7 +2,7 @@ package system
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.web.client.getForEntity
+import org.springframework.boot.resttestclient.getForEntity
 import org.springframework.http.HttpStatus
 import java.net.URI
 
